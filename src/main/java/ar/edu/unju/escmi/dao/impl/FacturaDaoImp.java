@@ -1,3 +1,4 @@
+
 package ar.edu.unju.escmi.dao.impl;
 
 import java.util.List;
@@ -12,18 +13,25 @@ public class FacturaDaoImp implements IFacturaDao {
 
     @Override
     public void guardarFactura(Factura factura) {
-        EntityManager em = EmfSingleton.getInstance().getEmf().createEntityManager();
+
+        EntityManager em = EmfSingleton.getInstance()
+                .getEmf().createEntityManager();
+
         EntityTransaction tx = em.getTransaction();
 
         try {
             tx.begin();
             em.persist(factura);
             tx.commit();
+
         } catch (Exception e) {
+
             if (tx.isActive()) {
                 tx.rollback();
             }
-            e.printStackTrace();
+
+            throw new RuntimeException("Error al guardar la factura.", e);
+
         } finally {
             em.close();
         }
@@ -31,10 +39,25 @@ public class FacturaDaoImp implements IFacturaDao {
 
     @Override
     public Factura buscarFactura(Long id) {
-        EntityManager em = EmfSingleton.getInstance().getEmf().createEntityManager();
+
+        EntityManager em = EmfSingleton.getInstance()
+                .getEmf().createEntityManager();
 
         try {
-            return em.find(Factura.class, id);
+
+            return em.createQuery(
+                    "SELECT DISTINCT f FROM Factura f " +
+                    "LEFT JOIN FETCH f.cliente " +
+                    "LEFT JOIN FETCH f.detalles d " +
+                    "LEFT JOIN FETCH d.producto " +
+                    "WHERE f.id = :id",
+                    Factura.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+
+        } catch (jakarta.persistence.NoResultException e) {
+            return null;
+
         } finally {
             em.close();
         }
@@ -42,13 +65,17 @@ public class FacturaDaoImp implements IFacturaDao {
 
     @Override
     public void eliminarFactura(Factura factura) {
-        EntityManager em = EmfSingleton.getInstance().getEmf().createEntityManager();
+
+        EntityManager em = EmfSingleton.getInstance()
+                .getEmf().createEntityManager();
+
         EntityTransaction tx = em.getTransaction();
 
         try {
             tx.begin();
 
-            Factura facturaEncontrada = em.find(Factura.class, factura.getId());
+            Factura facturaEncontrada =
+                    em.find(Factura.class, factura.getId());
 
             if (facturaEncontrada != null) {
                 facturaEncontrada.setEstado(false);
@@ -56,11 +83,15 @@ public class FacturaDaoImp implements IFacturaDao {
             }
 
             tx.commit();
+
         } catch (Exception e) {
+
             if (tx.isActive()) {
                 tx.rollback();
             }
-            e.printStackTrace();
+
+            throw new RuntimeException("Error al eliminar la factura.", e);
+
         } finally {
             em.close();
         }
@@ -68,12 +99,21 @@ public class FacturaDaoImp implements IFacturaDao {
 
     @Override
     public List<Factura> obtenerFacturas() {
-        EntityManager em = EmfSingleton.getInstance().getEmf().createEntityManager();
+
+        EntityManager em = EmfSingleton.getInstance()
+                .getEmf().createEntityManager();
 
         try {
+
             return em.createQuery(
-                    "SELECT f FROM Factura f WHERE f.estado = true",
-                    Factura.class).getResultList();
+                    "SELECT DISTINCT f FROM Factura f " +
+                    "LEFT JOIN FETCH f.cliente " +
+                    "LEFT JOIN FETCH f.detalles d " +
+                    "LEFT JOIN FETCH d.producto " +
+                    "WHERE f.estado = true",
+                    Factura.class)
+                    .getResultList();
+
         } finally {
             em.close();
         }
@@ -81,14 +121,22 @@ public class FacturaDaoImp implements IFacturaDao {
 
     @Override
     public List<Factura> obtenerFacturasMayoresA(double monto) {
-        EntityManager em = EmfSingleton.getInstance().getEmf().createEntityManager();
+
+        EntityManager em = EmfSingleton.getInstance()
+                .getEmf().createEntityManager();
 
         try {
+
             return em.createQuery(
-                    "SELECT f FROM Factura f WHERE f.total > :monto AND f.estado = true",
+                    "SELECT DISTINCT f FROM Factura f " +
+                    "LEFT JOIN FETCH f.cliente " +
+                    "LEFT JOIN FETCH f.detalles d " +
+                    "LEFT JOIN FETCH d.producto " +
+                    "WHERE f.total > :monto AND f.estado = true",
                     Factura.class)
                     .setParameter("monto", monto)
                     .getResultList();
+
         } finally {
             em.close();
         }
