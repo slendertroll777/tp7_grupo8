@@ -1,0 +1,12 @@
+ar\edu\unju\escmi\dao\IProductoDao.class
+ar\edu\unju\escmi\dao\IClienteDao.class
+ar\edu\unju\escmi\entities\Factura.class
+ar\edu\unju\escmi\entities\Producto.class
+ar\edu\unju\escmi\entities\Cliente.class
+ar\edu\unju\escmi\dao\impl\ProductoDaoImp.class
+ar\edu\unju\escmi\entities\DetalleFactura.class
+ar\edu\unju\escmi\dao\IFacturaDao.class
+ar\edu\unju\escmi\dao\impl\FacturaDaoImp.class
+ar\edu\unju\escmi\dao\impl\ClienteDaoImp.class
+ar\edu\unju\escmi\main\Main.class
+ar\edu\unju\escmi\config\EmfSingleton.class
