@@ -1,0 +1,6 @@
+# Archivos compilados (Maven los genera al compilar)
+target/
+
+# Archivos de herramientas del editor
+.github/modernize/
+.vscode/
